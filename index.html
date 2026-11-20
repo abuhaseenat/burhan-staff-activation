@@ -10,22 +10,36 @@ button{width:100%;padding:15px;border:0;border-radius:11px;background:#e95b3e;co
 .status{margin-top:16px;padding:12px;border-radius:10px;background:#f1f4f8;line-height:1.5}.hidden{display:none}
 </style></head><body><main class="card">
 <div class="brand">BURHAN BUSINESS STORE</div><h1>Set up your staff password</h1>
-<p>Use this secure page to finish activating your staff account.</p>
+<p>Request a secure password setup link, or use the link already sent to your email.</p>
+<div id="request">
+<label for="email">Staff account email</label><input id="email" type="email" autocomplete="email" placeholder="Enter your staff email">
+<button id="send">Send password setup link</button>
+</div>
 <div id="form" class="hidden">
 <label for="pw">New password</label><input id="pw" type="password" autocomplete="new-password" minlength="8" placeholder="At least 8 characters">
 <label for="pw2">Confirm password</label><input id="pw2" type="password" autocomplete="new-password" minlength="8" placeholder="Enter it again">
 <button id="save">Save password</button></div>
-<div id="status" class="status">Checking your secure link…</div>
+<div id="status" class="status">If you already received a secure link, open it on this device to continue.</div>
 <p><small>After saving, return to the BURHAN Business Store app and sign in with your email and new password.</small></p>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (async()=>{
-const status=document.getElementById('status'),form=document.getElementById('form'),save=document.getElementById('save');
+const status=document.getElementById('status'),form=document.getElementById('form'),request=document.getElementById('request'),save=document.getElementById('save'),send=document.getElementById('send');
+const redirectTo='https://abuhaseenat.github.io/burhan-staff-activation/';
 const client=window.supabase.createClient('https://sfpaxlsarbnemzpzwylt.supabase.co','sb_publishable_99Sa8v_XGZjPzk8XDNDHWA_Xaa8RiuE',{auth:{detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}});
+send.addEventListener('click',async()=>{
+const email=document.getElementById('email').value.trim();
+if(!email){status.textContent='Enter the staff account email first.';return;}
+send.disabled=true;send.textContent='Sending…';
+const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo});
+status.textContent=error?'Could not send the email: '+error.message:'If this email belongs to an account, a password setup email has been sent. Check the inbox and spam folder.';
+send.disabled=false;send.textContent='Send password setup link';
+});
 const {data,error}=await client.auth.getSession();
-if(error||!data.session){status.textContent='This password link is invalid, expired, or already used. Ask the business owner to send a fresh password email.';return;}
-form.classList.remove('hidden');status.textContent='Secure link verified. Choose your password.';
+if(error){status.textContent='Could not verify the secure link. Request a fresh password email.';return;}
+if(!data.session){return;}
+request.classList.add('hidden');form.classList.remove('hidden');status.textContent='Secure link verified. Choose your password.';
 save.addEventListener('click',async()=>{
 const a=document.getElementById('pw').value,b=document.getElementById('pw2').value;
 if(a.length<8){status.textContent='Use at least 8 characters.';return;}
