@@ -22,7 +22,7 @@ button{width:100%;padding:15px;border:0;border-radius:11px;background:#e95b3e;co
 <script>
 (async()=>{
 const status=document.getElementById('status'),form=document.getElementById('form'),save=document.getElementById('save');
-const client=window.supabase.createClient('https://sfpaxlsarbnemzpzwylt.supabase.co','sb_publishable_99Sa8v_XGZjPzk8XDNDHWA_Xaa8RiuE',{auth:{flowType:'pkce',detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}});
+const client=window.supabase.createClient('https://sfpaxlsarbnemzpzwylt.supabase.co','sb_publishable_99Sa8v_XGZjPzk8XDNDHWA_Xaa8RiuE',{auth:{detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}});
 const {data,error}=await client.auth.getSession();
 if(error||!data.session){status.textContent='This password link is invalid, expired, or already used. Ask the business owner to send a fresh password email.';return;}
 form.classList.remove('hidden');status.textContent='Secure link verified. Choose your password.';
