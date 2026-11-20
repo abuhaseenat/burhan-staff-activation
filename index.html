@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BURHAN Business Store | Staff password setup</title>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:20px;display:flex;align-items:center;justify-content:center;background:#f3f5f8;color:#263244;font-family:Arial,sans-serif}
+.card{width:100%;max-width:440px;background:#fff;border-radius:18px;padding:26px;box-shadow:0 8px 28px #17203318}
+.brand{font-size:12px;letter-spacing:1.4px;font-weight:700;color:#e95b3e;margin-bottom:18px}
+h1{font-size:24px;margin:0 0 8px}p{color:#657184;line-height:1.5}
+label{display:block;font-weight:700;margin:18px 0 7px}input{width:100%;padding:14px;border:1px solid #cbd3dd;border-radius:11px;font-size:16px}
+button{width:100%;padding:15px;border:0;border-radius:11px;background:#e95b3e;color:white;font-size:16px;font-weight:700;margin-top:20px}
+.status{margin-top:16px;padding:12px;border-radius:10px;background:#f1f4f8;line-height:1.5}.hidden{display:none}
+</style></head><body><main class="card">
+<div class="brand">BURHAN BUSINESS STORE</div><h1>Set up your staff password</h1>
+<p>Use this secure page to finish activating your staff account.</p>
+<div id="form" class="hidden">
+<label for="pw">New password</label><input id="pw" type="password" autocomplete="new-password" minlength="8" placeholder="At least 8 characters">
+<label for="pw2">Confirm password</label><input id="pw2" type="password" autocomplete="new-password" minlength="8" placeholder="Enter it again">
+<button id="save">Save password</button></div>
+<div id="status" class="status">Checking your secure link…</div>
+<p><small>After saving, return to the BURHAN Business Store app and sign in with your email and new password.</small></p>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(async()=>{
+const status=document.getElementById('status'),form=document.getElementById('form'),save=document.getElementById('save');
+const client=window.supabase.createClient('https://sfpaxlsarbnemzpzwylt.supabase.co','sb_publishable_99Sa8v_XGZjPzk8XDNDHWA_Xaa8RiuE',{auth:{flowType:'pkce',detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}});
+const {data,error}=await client.auth.getSession();
+if(error||!data.session){status.textContent='This password link is invalid, expired, or already used. Ask the business owner to send a fresh password email.';return;}
+form.classList.remove('hidden');status.textContent='Secure link verified. Choose your password.';
+save.addEventListener('click',async()=>{
+const a=document.getElementById('pw').value,b=document.getElementById('pw2').value;
+if(a.length<8){status.textContent='Use at least 8 characters.';return;}
+if(a!==b){status.textContent='The passwords do not match.';return;}
+save.disabled=true;save.textContent='Saving…';
+const {error}=await client.auth.updateUser({password:a});
+if(error){status.textContent=error.message;save.disabled=false;save.textContent='Save password';return;}
+await client.auth.signOut();form.classList.add('hidden');status.textContent='Password saved successfully. Return to BURHAN Business Store and sign in.';
+});
+})().catch(()=>{document.getElementById('status').textContent='Could not verify this link. Request a new password email.';});
+</script></body></html>
